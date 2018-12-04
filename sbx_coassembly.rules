@@ -1,40 +1,61 @@
 rule agglomerate_sample_paired:
-    input:
-        rules.Decontaminated.output
-    output:
-        temp(str(ASSEMBLY_FP/'coassembly'/'agglomerate'/'{sample}_{rp}.done'))
-    params:
-        r1 = str(ASSEMBLY_FP/'coassembly'/'fastq'/'all_R1.fastq'),
-        r2 = str(ASSEMBLY_FP/'coassembly'/'fastq'/'all_R2.fastq')
-    shell:
-        """
-        zcat {input.r1} >> {params.r1}
-        touch {output.r1}
-        zcat {input.r2} >> {params.r2}
-        touch {output.r2}
-        """
+   input:
+       rules.Decontaminated.output
+   output:
+#       temp(expand(str(ASSEMBLY_FP/'coassembly'/'agglomerate'/'{sample}_{rp}.done'), rp=[1,2]))
+       str(ASSEMBLY_FP/'coassembly'/'agglomerate'/'{sample}_{rp}.done')
+#   params:
+#       dest = str(ASSEMBLY_FP/'coassembly'/'fastq'/'all_R{rp}.fastq')
+   shell:
+#       """
+#       zcat {input[0]} >> {params.dest}
+#       touch {output}
+       """
+       cat {input}
+       """
+# ule agglomerate_sample_paired:
+#    input:
+#        r1 = rules.Decontaminated.output[0],
+#        r2 = rules.Decontaminated.output[1]
+#    output:
+#        temp(expand(str(ASSEMBLY_FP/'coassembly'/'agglomerate'/'{sample}_{rp}.done')), rp = ['1','2'])
+#        #temp(str(ASSEMBLY_FP/'coassembly'/'agglomerate'/'{sample}_{rp}.done'))
+#    params:
+#        r1 = str(ASSEMBLY_FP/'coassembly'/'fastq'/'all_R1.fastq'),
+#        r2 = str(ASSEMBLY_FP/'coassembly'/'fastq'/'all_R2.fastq')
+#    shell:
+#        """
+#        zcat {input.r1} >> {params.r1}
+#        touch {output[0]}
+#        zcat {input.r1} >> {params.r2}
+#        touch {output[1]}
+#        """
 
 rule check_agglomeration_paired:
     input:
-        expand(rules.agglomerate_sample_paired.output, sample=Samples.keys(), rp=Pairs)
-    output:
-        r1 = str(ASSEMBLY_FP/'coassembly'/'fastq'/'all_R1.fastq.gz'),
-        r2 = str(ASSEMBLY_FP/'coassembly'/'fastq'/'all_R2.fastq.gz')
+        expand(str(ASSEMBLY_FP/'coassembly'/'agglomerate'/'{sample}_{rp}.done'), sample=Samples.keys(), rp=[1,2])
+
+#    output:
+#        r1 = str(ASSEMBLY_FP/'coassembly'/'fastq'/'all_R1.fastq.gz'),
+#        r2 = str(ASSEMBLY_FP/'coassembly'/'fastq'/'all_R2.fastq.gz')
     params:
         r1 = str(ASSEMBLY_FP/'coassembly'/'fastq'/'all_R1.fastq'),
         r2 = str(ASSEMBLY_FP/'coassembly'/'fastq'/'all_R2.fastq')
     threads: 4
     shell:
-        """
+#        """
         # maybe should test that both files are equal in line #
         # if [  ]
-        pigz -p {threads} {params.r1}
-        pigz -p {threads} {params.r2}
+        # pigz -p {threads} {params.r1}
+        # pigz -p {threads} {params.r2}
+        """
+        echo wtf
         """
 
 rule coassemble_paired:
     input:
-        rules.check_agglomeration_paired.output
+        r1 = str(ASSEMBLY_FP/'coassembly'/'fastq'/'all_R1.fastq.gz'),
+        r2 = str(ASSEMBLY_FP/'coassembly'/'fastq'/'all_R2.fastq.gz')
     output:
         str(ASSEMBLY_FP/'coassembly'/'contigs_coassembled.fa')
     params:
@@ -42,7 +63,7 @@ rule coassemble_paired:
     shell:
         """
         megahit -1 {input.r1} -2 {input.r2} -o {params.assembly_dir}
-        mv {assembly_dir}/final.contigs.fa {output}
+        mv {params.assembly_dir}/final.contigs.fa {output}
         """
 
 rule all_coassemble:
