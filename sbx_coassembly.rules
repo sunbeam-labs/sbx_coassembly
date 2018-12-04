@@ -1,8 +1,51 @@
-rule example_rule:
-	input:
-		#files required for input	
-	output:
-		#files created after successful rule completion
-	shell:
-		#commands run during rule
+rule agglomerate_sample_paired:
+    input:
+        r1, r2 = rules.Decontaminated.output
+    output:
+        r1, r2 = temp(str(ASSEMBLY_FP/'coassembly'/'agglomerate'/'{sample}_{rp}.done'))
+    params:
+        r1 = str(ASSEMBLY_FP/'coassembly'/'fastq'/'all_R1.fastq'),
+        r2 = str(ASSEMBLY_FP/'coassembly'/'fastq'/'all_R2.fastq')
+    shell:
+        """
+        zcat {input.r1} >> {params.r1}
+        touch {output.r1}
+        zcat {input.r2} >> {params.r2}
+        touch {output.r2}
+        """
+
+rule check_agglomeration_paired:
+    input:
+        expand(rules.agglomerate_samples.output, sample=Samples.keys(), rp=Pairs)
+    output:
+        r1 = str(ASSEMBLY_FP/'coassembly'/'fastq'/'all_R1.fastq.gz'),
+        r2 = str(ASSEMBLY_FP/'coassembly'/'fastq'/'all_R2.fastq.gz')
+    params:
+        r1 = str(ASSEMBLY_FP/'coassembly'/'fastq'/'all_R1.fastq'),
+        r2 = str(ASSEMBLY_FP/'coassembly'/'fastq'/'all_R2.fastq')
+    threads: 4
+    shell:
+        """
+        # maybe should test that both files are equal in line #
+        # if [  ]
+        pigz -p {threads} {params.r1}
+        pigz -p {threads} {params.r2}
+        """
+
+rule coassemble_paired:
+    input:
+        rules.check_agglomeration_paired.output
+    output:
+        str(ASSEMBLY_FP/'coassembly'/'contigs_coassembled.fa')
+    params:
+        assembly_dir = str(ASSEMBLY_FP/'coassembly'/'assembly')
+    shell:
+        """
+        megahit -1 {input.r1} -2 {input.r2} -o {params.assembly_dir}
+        mv {assembly_dir}/final.contigs.fa {output}
+        """
+
+rule all_coassemble:
+    input:
+        str(ASSEMBLY_FP/'coassembly'/'contigs_coassembled.fa')
 
