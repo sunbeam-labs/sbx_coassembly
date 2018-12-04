@@ -1,8 +1,8 @@
 rule agglomerate_sample_paired:
     input:
-        r1, r2 = rules.Decontaminated.output
+        rules.Decontaminated.output
     output:
-        r1, r2 = temp(str(ASSEMBLY_FP/'coassembly'/'agglomerate'/'{sample}_{rp}.done'))
+        temp(str(ASSEMBLY_FP/'coassembly'/'agglomerate'/'{sample}_{rp}.done'))
     params:
         r1 = str(ASSEMBLY_FP/'coassembly'/'fastq'/'all_R1.fastq'),
         r2 = str(ASSEMBLY_FP/'coassembly'/'fastq'/'all_R2.fastq')
@@ -16,7 +16,7 @@ rule agglomerate_sample_paired:
 
 rule check_agglomeration_paired:
     input:
-        expand(rules.agglomerate_samples.output, sample=Samples.keys(), rp=Pairs)
+        expand(rules.agglomerate_sample_paired.output, sample=Samples.keys(), rp=Pairs)
     output:
         r1 = str(ASSEMBLY_FP/'coassembly'/'fastq'/'all_R1.fastq.gz'),
         r2 = str(ASSEMBLY_FP/'coassembly'/'fastq'/'all_R2.fastq.gz')
