@@ -2,22 +2,26 @@ rule agglomerate_sample_paired:
    input:
        rules.Decontaminated.output
    output:
-       str(ASSEMBLY_FP/'coassembly'/'agglomerate'/'{sample}_{rp}.done')
+       temp(str(ASSEMBLY_FP/'coassembly'/'agglomerate'/'{sample}_R{rp}.fastq'))
+   threads: Cfg['sbx_coassembly']['threads']
    shell:
        """
-       cat {input}
+       pigz -d -c > {output} 
        """
 
 rule check_agglomeration_paired:
     input:
-        expand(str(ASSEMBLY_FP/'coassembly'/'agglomerate'/'{sample}_{rp}.done'), sample=Samples.keys(), rp=[1,2])
-
+        expand(str(ASSEMBLY_FP/'coassembly'/'agglomerate'/'{sample}_R{rp}.fastq'), sample=Samples.keys(), rp=[1,2])
+    output:
+        r1 = str(ASSEMBLY_FP/'coassembly'/'fastq'/'all_R1.fastq.gz'),
+        r2 = str(ASSEMBLY_FP/'coassembly'/'fastq'/'all_R2.fastq.gz')
     params:
-        r1 = str(ASSEMBLY_FP/'coassembly'/'fastq'/'all_R1.fastq'),
-        r2 = str(ASSEMBLY_FP/'coassembly'/'fastq'/'all_R2.fastq')
-    threads: 4
+        fqdir = str(ASSEMBLY_FP/'coassembly'/'fastq')
+    threads: Cfg['sbx_coassembly']['threads']
     shell:
         """
+        cat {params.fqdir}/*_1.fastq | pigz -p {threads} -c > {output.r1}
+        cat {params.fqdir}/*_2.fastq | pigz -p {threads} -c > {output.r2}
         """
 
 rule coassemble_paired:
