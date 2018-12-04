@@ -6,7 +6,7 @@ rule agglomerate_sample_paired:
    threads: Cfg['sbx_coassembly']['threads']
    shell:
        """
-       pigz -d -c > {output} 
+       pigz -d -c {input} > {output} 
        """
 
 rule check_agglomeration_paired:
@@ -20,8 +20,8 @@ rule check_agglomeration_paired:
     threads: Cfg['sbx_coassembly']['threads']
     shell:
         """
-        cat {params.fqdir}/*_1.fastq | pigz -p {threads} -c > {output.r1}
-        cat {params.fqdir}/*_2.fastq | pigz -p {threads} -c > {output.r2}
+        cat {params.fqdir}/*_1.fastq | pigz -p {threads} > {output.r1}
+        cat {params.fqdir}/*_2.fastq | pigz -p {threads} > {output.r2}
         """
 
 rule coassemble_paired:
