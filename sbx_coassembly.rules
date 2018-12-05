@@ -16,12 +16,12 @@ rule check_agglomeration_paired:
         r1 = str(ASSEMBLY_FP/'coassembly'/'fastq'/'all_R1.fastq.gz'),
         r2 = str(ASSEMBLY_FP/'coassembly'/'fastq'/'all_R2.fastq.gz')
     params:
-        fqdir = str(ASSEMBLY_FP/'coassembly'/'fastq')
+        fqdir = str(ASSEMBLY_FP/'coassembly'/'agglomerate')
     threads: Cfg['sbx_coassembly']['threads']
     shell:
         """
-        cat {params.fqdir}/*_1.fastq | pigz -p {threads} > {output.r1}
-        cat {params.fqdir}/*_2.fastq | pigz -p {threads} > {output.r2}
+        cat {params.fqdir}/*_R1.fastq | pigz -p {threads} > {output.r1}
+        cat {params.fqdir}/*_R2.fastq | pigz -p {threads} > {output.r2}
         """
 
 rule coassemble_paired:
@@ -32,9 +32,10 @@ rule coassemble_paired:
         str(ASSEMBLY_FP/'coassembly'/'contigs_coassembled.fa')
     params:
         assembly_dir = str(ASSEMBLY_FP/'coassembly'/'assembly')
+    threads: Cfg['sbx_coassembly']['threads']
     shell:
         """
-        megahit -1 {input.r1} -2 {input.r2} -o {params.assembly_dir}
+        megahit -1 {input.r1} -2 {input.r2} -t {threads} -o {params.assembly_dir}
         mv {params.assembly_dir}/final.contigs.fa {output}
         """
 
