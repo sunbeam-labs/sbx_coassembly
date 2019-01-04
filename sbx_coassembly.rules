@@ -43,3 +43,4 @@ rule all_coassemble:
     input:
         str(ASSEMBLY_FP/'coassembly'/'contigs_coassembled.fa')
 
+
