@@ -7,7 +7,7 @@ Clone the repo into your sunbeam `extensions/` folder, installing requirements t
 
     source activate sunbeam
     cd $SUNBEAM_DIR
-    git clone https://github.com/louiejtaylor/sbx_template/ extensions/sbx_coassembly
+    git clone https://github.com/louiejtaylor/sbx_coassembly/ extensions/sbx_coassembly
     conda install --file extensions/sbx_coassembly/requirements.txt
 
 Add the options to your config file (replace "sunbeam_config.yml" with the name of your config file).

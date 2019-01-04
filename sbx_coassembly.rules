@@ -6,7 +6,7 @@ rule agglomerate_sample_paired:
    threads: Cfg['sbx_coassembly']['threads']
    shell:
        """
-       pigz -d -c {input} > {output} 
+       pigz -d -p {threads} -c {input} > {output} 
        """
 
 rule check_agglomeration_paired:
