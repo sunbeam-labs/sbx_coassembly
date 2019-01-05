@@ -1,37 +1,65 @@
-rule agglomerate_sample_paired:
-   input:
-       rules.Decontaminated.output
-   output:
-       temp(str(ASSEMBLY_FP/'coassembly'/'agglomerate'/'{sample}_R{rp}.fastq'))
-   threads: Cfg['sbx_coassembly']['threads']
-   shell:
-       """
-       pigz -d -p {threads} -c {input} > {output} 
-       """
+import ruamel.yaml
 
-rule check_agglomeration_paired:
+def zip3l(l1,l2,l3):
+    return list(zip(l1,l2,l3))
+
+def coassembly_groups(fp):
+    groups = ruamel.yaml.safe_load(open(str(fp)).read())
+    sorted_keys = sorted(groups.keys())
+    K = [] # group
+    V = [] # sample
+    for k in sorted_keys:
+        K += [k]*len(groups[k])
+        V += groups[k]
+    R = [1]*len(V) + [2]*len(V)
+    return [K+K,V+V,R]
+
+rule prep_samples_for_concatenation_paired:
     input:
-        expand(str(ASSEMBLY_FP/'coassembly'/'agglomerate'/'{sample}_R{rp}.fastq'), sample=Samples.keys(), rp=[1,2])
+        r1 = str(QC_FP/'decontam'/'{sample}_1.fastq.gz'),
+        r2 = str(QC_FP/'decontam'/'{sample}_2.fastq.gz')
     output:
-        r1 = str(ASSEMBLY_FP/'coassembly'/'fastq'/'all_R1.fastq.gz'),
-        r2 = str(ASSEMBLY_FP/'coassembly'/'fastq'/'all_R2.fastq.gz')
-    params:
-        fqdir = str(ASSEMBLY_FP/'coassembly'/'agglomerate')
+        r1 = temp(str(ASSEMBLY_FP/'coassembly'/'agglomerate'/'{sample}_{group}_1.fastq')),
+        r2 = temp(str(ASSEMBLY_FP/'coassembly'/'agglomerate'/'{sample}_{group}_2.fastq'))
     threads: Cfg['sbx_coassembly']['threads']
     shell:
         """
-        cat {params.fqdir}/*_R1.fastq | pigz -p {threads} > {output.r1}
-        cat {params.fqdir}/*_R2.fastq | pigz -p {threads} > {output.r2}
+        pigz -d -p {threads} -c {input.r1} > {output.r1}
+        pigz -d -p {threads} -c {input.r2} > {output.r2}
+        """
+
+rule all_prep_paired:
+    input:
+        expand(str(ASSEMBLY_FP/'coassembly'/'agglomerate'/'{sample}_{group}_{rp}.fastq'), zip3l, group=coassembly_groups(Cfg['sbx_coassembly']['group_file'])[0], sample=coassembly_groups(Cfg['sbx_coassembly']['group_file'])[1], rp=coassembly_groups(Cfg['sbx_coassembly']['group_file'])[2])
+    output:
+        touch(ASSEMBLY_FP/'coassembly'/'agglomerate'/'prepped.done')
+    shell:
+        'echo "samples ready to combine for co-assembly"'
+
+rule combine_groups_paired:
+    input:
+        rules.all_prep_paired.output
+    output:
+        r1 = str(ASSEMBLY_FP/'coassembly'/'fastq'/'{group}_1.fastq.gz'),
+        r2 = str(ASSEMBLY_FP/'coassembly'/'fastq'/'{group}_2.fastq.gz')
+    params:
+        w1 = str(str(ASSEMBLY_FP/'coassembly'/'agglomerate')+str('/*{group}_1.fastq')),
+        w2 = str(str(ASSEMBLY_FP/'coassembly'/'agglomerate')+str('/*{group}_2.fastq'))
+    threads: Cfg['sbx_coassembly']['threads']
+    shell:
+        """
+        cat {params.w1} | pigz -p {threads} > {output.r1}
+        cat {params.w2} | pigz -p {threads} > {output.r2}
         """
 
 rule coassemble_paired:
     input:
-        r1 = str(ASSEMBLY_FP/'coassembly'/'fastq'/'all_R1.fastq.gz'),
-        r2 = str(ASSEMBLY_FP/'coassembly'/'fastq'/'all_R2.fastq.gz')
+        r1 = str(ASSEMBLY_FP/'coassembly'/'fastq'/'{group}_1.fastq.gz'),
+        r2 = str(ASSEMBLY_FP/'coassembly'/'fastq'/'{group}_2.fastq.gz')
     output:
-        str(ASSEMBLY_FP/'coassembly'/'contigs_coassembled.fa')
+        str(ASSEMBLY_FP/'coassembly'/'{group}_final_contigs.fa')
     params:
-        assembly_dir = str(ASSEMBLY_FP/'coassembly'/'assembly')
+        assembly_dir = str(ASSEMBLY_FP/'coassembly'/'{group}')
     threads: Cfg['sbx_coassembly']['threads']
     shell:
         """
@@ -41,6 +69,8 @@ rule coassemble_paired:
 
 rule all_coassemble:
     input:
-        str(ASSEMBLY_FP/'coassembly'/'contigs_coassembled.fa')
-
+        a = expand(str(ASSEMBLY_FP/'coassembly'/'{group}_final_contigs.fa'),group=list(set(coassembly_groups(Cfg['sbx_coassembly']['group_file'])[0]))),
+        b = rules.all_prep_paired.input
+        #b = expand(str(ASSEMBLY_FP/'coassembly'/'agglomerate'/'{sample}_{group}_{rp}.fastq'), zip3l, group=coassembly_groups(Cfg['sbx_coassembly']['group_file'])[0], sample=coassembly_groups(Cfg['sbx_coassembly']['group_file'])[1], rp=coassembly_groups(Cfg['sbx_coassembly']['group_file'])[2])
+        #str(ASSEMBLY_FP/'coassembly'/'contigs_coassembled.fa')
 

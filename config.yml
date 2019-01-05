@@ -1,2 +1,3 @@
 sbx_coassembly:
   threads: 4
+  group_file: ''
