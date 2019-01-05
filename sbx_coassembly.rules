@@ -3,7 +3,12 @@ import ruamel.yaml
 def zip3l(l1,l2,l3):
     return list(zip(l1,l2,l3))
 
-def coassembly_groups(fp):
+def coassembly_groups(fp, sample_list):
+    if fp == '':
+        K = ['all']*(len(sample_list)*2)
+        V = list(sorted(sample_list))*2
+        R = [1]*len(sample_list) + [2]*len(sample_list)
+        return [K,V,R]
     groups = ruamel.yaml.safe_load(open(str(fp)).read())
     sorted_keys = sorted(groups.keys())
     K = [] # group
@@ -30,7 +35,7 @@ rule prep_samples_for_concatenation_paired:
 
 rule all_prep_paired:
     input:
-        expand(str(ASSEMBLY_FP/'coassembly'/'agglomerate'/'{sample}_{group}_{rp}.fastq'), zip3l, group=coassembly_groups(Cfg['sbx_coassembly']['group_file'])[0], sample=coassembly_groups(Cfg['sbx_coassembly']['group_file'])[1], rp=coassembly_groups(Cfg['sbx_coassembly']['group_file'])[2])
+        expand(str(ASSEMBLY_FP/'coassembly'/'agglomerate'/'{sample}_{group}_{rp}.fastq'), zip3l, group=coassembly_groups(Cfg['sbx_coassembly']['group_file'],Samples.keys())[0], sample=coassembly_groups(Cfg['sbx_coassembly']['group_file'],Samples.keys())[1], rp=coassembly_groups(Cfg['sbx_coassembly']['group_file'],Samples.keys())[2])
     output:
         touch(ASSEMBLY_FP/'coassembly'/'agglomerate'/'prepped.done')
     shell:
@@ -69,7 +74,7 @@ rule coassemble_paired:
 
 rule all_coassemble:
     input:
-        a = expand(str(ASSEMBLY_FP/'coassembly'/'{group}_final_contigs.fa'),group=list(set(coassembly_groups(Cfg['sbx_coassembly']['group_file'])[0]))),
+        a = expand(str(ASSEMBLY_FP/'coassembly'/'{group}_final_contigs.fa'),group=list(set(coassembly_groups(Cfg['sbx_coassembly']['group_file'],Samples.keys())[0]))),
         b = rules.all_prep_paired.input
         #b = expand(str(ASSEMBLY_FP/'coassembly'/'agglomerate'/'{sample}_{group}_{rp}.fastq'), zip3l, group=coassembly_groups(Cfg['sbx_coassembly']['group_file'])[0], sample=coassembly_groups(Cfg['sbx_coassembly']['group_file'])[1], rp=coassembly_groups(Cfg['sbx_coassembly']['group_file'])[2])
         #str(ASSEMBLY_FP/'coassembly'/'contigs_coassembled.fa')
