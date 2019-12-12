@@ -5,7 +5,7 @@ This is an extension to the [Sunbeam pipeline](https://github.com/sunbeam-labs/s
 
 To install (see legacy instructions below):
 
-    sunbeam extend https://github.com/louiejtaylor/sbx_coassembly/
+    sunbeam extend https://github.com/sunbeam-labs/sbx_coassembly/
 
 Paramaters for `sbx_coassembly` are automatically added on `sunbeam init`. If you're installing an extension in a project where you already have a config file, run the following to add the options for your newly added extension to your config (the `-i` flag means in-place config file modification; remove the `-i` flag to see the new config in stdout):
 
@@ -13,7 +13,7 @@ Paramaters for `sbx_coassembly` are automatically added on `sunbeam init`. If yo
 
 ## Configuration
 
-If you'd like to coassemble all of your samples, no further input is needed! [Jump to Running](https://github.com/louiejtaylor/sbx_coassembly#running)
+If you'd like to coassemble all of your samples, no further input is needed! [Jump to Running](https://github.com/sunbeam-labs/sbx_coassembly#running)
 
 If no grouping file is specified this extension by default co-assembles all samples. If you'd like to group specific samples, you need to provide a mapping file, then point to that mapping file in your config file. For example, if you have three samples from individual A (A_d1, A_d2, A_d3) and two from individual B (B_d1, B_d3), and you'd like to make one coassembly for each individual, you first need a mapping file like this (I'll call it `mapping.yml`):
 
@@ -53,7 +53,7 @@ Clone the repo into your sunbeam `extensions/` folder, installing requirements t
 
     source activate sunbeam
     cd $SUNBEAM_DIR
-    git clone https://github.com/louiejtaylor/sbx_coassembly/ extensions/sbx_coassembly
+    git clone https://github.com/sunbeam-labs/sbx_coassembly/ extensions/sbx_coassembly
 
 Add the options to your config file (replace "sunbeam_config.yml" with the name of your config file).
 
