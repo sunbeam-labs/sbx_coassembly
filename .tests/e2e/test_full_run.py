@@ -24,7 +24,9 @@ def setup():
     with open(mapping_fp, "w") as f:
         f.write("A: ['A702', 'A741', 'A745', 'A746', 'A747']\n")
         f.write("B: ['B702', 'B741', 'B745', 'B746', 'B747']\n")
-        f.write("Other: ['DNAfreewater1.20220214', 'Extractblankswab1.20220214', 'Extractemptywell1.20220214', 'mockdna1.20220214']")
+        f.write(
+            "Other: ['DNAfreewater1.20220214', 'Extractblankswab1.20220214', 'Extractemptywell1.20220214', 'mockdna1.20220214']"
+        )
 
     config_str = f"sbx_mapping: {{genomes_fp: {mapping_fp}}}"
     sp.check_output(
@@ -37,7 +39,7 @@ def setup():
             f"{config_str}",
             f"{config_fp}",
         ]
-     )
+    )
 
     config_str = f"qc: {{host_fp: {hosts_fp}}}"
     sp.check_output(
