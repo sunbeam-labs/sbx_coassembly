@@ -1,3 +1,4 @@
+name: sbx_coassembly_env
 channels:
   - bioconda
   - conda-forge
