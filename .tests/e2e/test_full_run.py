@@ -105,3 +105,5 @@ def test_full_run(run_sunbeam):
 
     # Check output
     assert os.path.exists(all_final_contigs_fp)
+    with open(all_final_contigs_fp) as f:
+        assert f.readlines() == ""
