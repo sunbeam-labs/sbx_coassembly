@@ -46,11 +46,7 @@ rule all_coassemble:
             ),
         ),
         b=expand(
-            str(
-                COASSEMBLY_FP
-                / "agglomerate"
-                / "{sample}_{group}_{rp}.fastq"
-            ),
+            str(COASSEMBLY_FP / "agglomerate" / "{sample}_{group}_{rp}.fastq"),
             zip3l,
             group=coassembly_groups(
                 Cfg["sbx_coassembly"]["group_file"], Samples.keys()
@@ -69,12 +65,8 @@ rule prep_samples_for_concatenation_paired:
         r1=str(QC_FP / "decontam" / "{sample}_1.fastq.gz"),
         r2=str(QC_FP / "decontam" / "{sample}_2.fastq.gz"),
     output:
-        r1=temp(
-            str(COASSEMBLY_FP / "agglomerate" / "{sample}_{group}_1.fastq")
-        ),
-        r2=temp(
-            str(COASSEMBLY_FP / "agglomerate" / "{sample}_{group}_2.fastq")
-        ),
+        r1=temp(str(COASSEMBLY_FP / "agglomerate" / "{sample}_{group}_1.fastq")),
+        r2=temp(str(COASSEMBLY_FP / "agglomerate" / "{sample}_{group}_2.fastq")),
     benchmark:
         BENCHMARK_FP / "prep_samples_for_concatenation_paired_{sample}_{group}.tsv"
     log:
@@ -96,12 +88,8 @@ rule combine_groups_paired:
         r1=str(COASSEMBLY_FP / "fastq" / "{group}_1.fastq.gz"),
         r2=str(COASSEMBLY_FP / "fastq" / "{group}_2.fastq.gz"),
     params:
-        w1=str(
-            str(COASSEMBLY_FP / "agglomerate") + str("/*{group}_1.fastq")
-        ),
-        w2=str(
-            str(COASSEMBLY_FP / "agglomerate") + str("/*{group}_2.fastq")
-        ),
+        w1=str(str(COASSEMBLY_FP / "agglomerate") + str("/*{group}_1.fastq")),
+        w2=str(str(COASSEMBLY_FP / "agglomerate") + str("/*{group}_2.fastq")),
     threads: Cfg["sbx_coassembly"]["threads"]
     conda:
         "sbx_coassembly_env.yml"

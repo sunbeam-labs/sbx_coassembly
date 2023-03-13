@@ -22,20 +22,22 @@ def setup():
     mapping_fp = os.path.join(project_dir, "mapping.yml")
 
     with open(mapping_fp, "w") as f:
-        f.write("")
+        f.write("A: ['A702', 'A741', 'A745', 'A746', 'A747']\n")
+        f.write("B: ['B702', 'B741', 'B745', 'B746', 'B747']\n")
+        f.write("Other: ['DNAfreewater1.20220214', 'Extractblankswab1.20220214', 'Extractemptywell1.20220214', 'mockdna1.20220214']")
 
     config_str = f"sbx_mapping: {{genomes_fp: {mapping_fp}}}"
-    #sp.check_output(
-    #    [
-    #        "sunbeam",
-    #        "config",
-    #        "modify",
-    #        "-i",
-    #        "-s",
-    #        f"{config_str}",
-    #        f"{config_fp}",
-    #    ]
-    #)
+    sp.check_output(
+        [
+            "sunbeam",
+            "config",
+            "modify",
+            "-i",
+            "-s",
+            f"{config_str}",
+            f"{config_fp}",
+        ]
+     )
 
     config_str = f"qc: {{host_fp: {hosts_fp}}}"
     sp.check_output(
@@ -84,7 +86,9 @@ def run_sunbeam(setup):
     shutil.copytree(os.path.join(output_fp, "logs/"), "logs/")
     shutil.copytree(os.path.join(project_dir, "stats/"), "stats/")
 
-    all_final_contigs_fp = os.path.join(output_fp, "assembly/coassembly/all_final_contigs.fa")
+    all_final_contigs_fp = os.path.join(
+        output_fp, "assembly/coassembly/all_final_contigs.fa"
+    )
 
     benchmarks_fp = os.path.join(project_dir, "stats/")
 
