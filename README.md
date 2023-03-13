@@ -2,6 +2,11 @@
 
 # sbx_coassembly
 
+<!-- Badges start -->
+[![Tests](https://github.com/sunbeam-labs/sbx_coassembly/actions/workflows/tests.yml/badge.svg)](https://github.com/sunbeam-labs/sbx_coassembly/actions/workflows/tests.yml)
+[![Super-Linter](https://github.com/sunbeam-labs/sbx_coassembly/actions/workflows/linter.yml/badge.svg)](https://github.com/sunbeam-labs/sbx_coassembly/actions/workflows/linter.yml)
+<!-- Badges end -->
+
 A [Sunbeam](https://github.com/sunbeam-labs/sunbeam) extension to perform co-assembly of reads from arbitrary groups of samples from a given project using Megahit.
 
 ## Installation
