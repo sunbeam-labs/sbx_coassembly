@@ -28,7 +28,7 @@ def setup():
             "Other: ['DNAfreewater1.20220214', 'Extractblankswab1.20220214', 'Extractemptywell1.20220214', 'mockdna1.20220214']"
         )
 
-    config_str = f"sbx_mapping: {{genomes_fp: {mapping_fp}}}"
+    config_str = f"sbx_coassembly: {{group_file: {mapping_fp}}}"
     sp.check_output(
         [
             "sunbeam",
@@ -65,6 +65,11 @@ def run_sunbeam(setup):
 
     output_fp = os.path.join(project_dir, "sunbeam_output")
 
+    def write_logs():
+        if os.environ.get('CI', False):
+            shutil.copytree(os.path.join(output_fp, "logs/"), "logs/")
+            shutil.copytree(os.path.join(project_dir, "stats/"), "stats/")
+
     try:
         # Run the test job
         sp.check_output(
@@ -81,12 +86,10 @@ def run_sunbeam(setup):
             ]
         )
     except sp.CalledProcessError as e:
-        shutil.copytree(os.path.join(output_fp, "logs/"), "logs/")
-        shutil.copytree(os.path.join(project_dir, "stats/"), "stats/")
+        write_logs()
         sys.exit(e)
 
-    shutil.copytree(os.path.join(output_fp, "logs/"), "logs/")
-    shutil.copytree(os.path.join(project_dir, "stats/"), "stats/")
+    write_logs()
 
     benchmarks_fp = os.path.join(project_dir, "stats/")
 
@@ -99,6 +102,9 @@ def test_full_run(run_sunbeam):
     A_fp = os.path.join(output_fp, "assembly/coassembly/A_final_contigs.fa")
     B_fp = os.path.join(output_fp, "assembly/coassembly/B_final_contigs.fa")
     Other_fp = os.path.join(output_fp, "assembly/coassembly/Other_final_contigs.fa")
+
+    val = sp.check_output(["ls", "-la", os.path.join(output_fp, "assembly/coassembly")])
+    sys.stderr.write(val.decode())
 
     # Check output
     assert os.path.exists(A_fp)
