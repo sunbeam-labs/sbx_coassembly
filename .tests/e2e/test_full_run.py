@@ -66,7 +66,7 @@ def run_sunbeam(setup):
     output_fp = os.path.join(project_dir, "sunbeam_output")
 
     def write_logs():
-        if os.environ.get('CI', False):
+        if os.environ.get("CI", False):
             shutil.copytree(os.path.join(output_fp, "logs/"), "logs/")
             shutil.copytree(os.path.join(project_dir, "stats/"), "stats/")
 
