@@ -88,22 +88,30 @@ def run_sunbeam(setup):
     shutil.copytree(os.path.join(output_fp, "logs/"), "logs/")
     shutil.copytree(os.path.join(project_dir, "stats/"), "stats/")
 
-    all_final_contigs_fp = os.path.join(
-        output_fp, "assembly/coassembly/all_final_contigs.fa"
-    )
-
     benchmarks_fp = os.path.join(project_dir, "stats/")
 
-    yield all_final_contigs_fp, benchmarks_fp
+    yield output_fp, benchmarks_fp
 
 
 def test_full_run(run_sunbeam):
-    (
-        all_final_contigs_fp,
-        benchmarks_fp,
-    ) = run_sunbeam
+    output_fp, benchmarks_fp = run_sunbeam
+
+    A_fp = os.path.join(output_fp, "assembly/coassembly/A_final_contigs.fa")
+    B_fp = os.path.join(output_fp, "assembly/coassembly/B_final_contigs.fa")
+    Other_fp = os.path.join(output_fp, "assembly/coassembly/Other_final_contigs.fa")
 
     # Check output
-    assert os.path.exists(all_final_contigs_fp)
-    with open(all_final_contigs_fp) as f:
-        assert f.readlines() == ""
+    assert os.path.exists(A_fp)
+    assert os.path.exists(B_fp)
+    assert os.path.exists(Other_fp)
+
+    with open(A_fp) as f:
+        assert any("k39_25" in line for line in f.readlines())
+
+    with open(B_fp) as f:
+        assert any("k59_1" in line for line in f.readlines())
+        assert any("k59_2" in line for line in f.readlines())
+
+    with open(Other_fp) as f:
+        assert any("k59_2" in line for line in f.readlines())
+        assert any("k59_3" in line for line in f.readlines())
