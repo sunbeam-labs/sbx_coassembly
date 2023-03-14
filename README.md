@@ -14,7 +14,7 @@ A [Sunbeam](https://github.com/sunbeam-labs/sunbeam) extension to perform co-ass
 To install, activate your conda environment (using the name of your environment) and use `sunbeam extend`:
 
     conda activate <i>sunbeamX.X.X</i>
-    sunbeam extend https://github.com/sunbeam-labs/sbx_mapping.git
+    sunbeam extend https://github.com/sunbeam-labs/sbx_coassembly.git
 
 ## Usage
 
@@ -23,9 +23,9 @@ To generate coassembled samples, create a project, define your groupings, and us
     sunbeam init --data_fp /path/to/reads/ /path/to/project/
     printf "A: ['A_d1', 'A_d2', 'A_d3']\nB: ['B_d1', 'B_d3']" > mapping.yml
     sunbeam config modify -i -f /path/to/project/sunbeam_config.yml -s 'sbx_coassembly: {{group_file: {/path/to/mapping.yml}}}'
-    sunbeam run --profile /path/to/project/ all_mapping
+    sunbeam run --profile /path/to/project/ all_coassemble
 
-N.B. For sunbeam versions <4 the last command will be something like `sunbeam run --configfile /path/to/project/sunbeam_config.yml all_mapping`.
+N.B. For sunbeam versions <4 the last command will be something like `sunbeam run --configfile /path/to/project/sunbeam_config.yml all_coassemble`.
 
 ## Configuration
 
