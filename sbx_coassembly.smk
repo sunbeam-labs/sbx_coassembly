@@ -5,11 +5,11 @@ COASSEMBLY_FP = ASSEMBLY_FP / "coassembly"
 try:
     BENCHMARK_FP
 except NameError:
-    BENCHMARK_FP = output_subdir(Cfg, "benchmarks")
+    BENCHMARK_FP = Cfg["all"]["output_fp"] / "benchmarks"
 try:
     LOG_FP
 except NameError:
-    LOG_FP = output_subdir(Cfg, "logs")
+    LOG_FP = Cfg["all"]["output_fp"] / "logs"
 
 
 def zip3l(l1, l2, l3):
