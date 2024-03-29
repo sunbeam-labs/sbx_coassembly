@@ -11,7 +11,6 @@ def setup():
     temp_dir = Path(tempfile.mkdtemp())
 
     reads_fp = Path(".tests/data/reads/").resolve()
-    hosts_fp = Path(".tests/data/hosts/").resolve()
 
     project_dir = temp_dir / "project/"
 
@@ -29,19 +28,6 @@ def setup():
         )
 
     config_str = f"sbx_coassembly: {{group_file: {mapping_fp}}}"
-    sp.check_output(
-        [
-            "sunbeam",
-            "config",
-            "modify",
-            "-i",
-            "-s",
-            f"{config_str}",
-            f"{config_fp}",
-        ]
-    )
-
-    config_str = f"qc: {{host_fp: {hosts_fp}}}"
     sp.check_output(
         [
             "sunbeam",

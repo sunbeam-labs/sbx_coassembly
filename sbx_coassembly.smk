@@ -89,7 +89,7 @@ rule prep_samples_for_concatenation_paired:
         LOG_FP / "prep_samples_for_concatenation_paired_{sample}_{group}.log",
     threads: Cfg["sbx_coassembly"]["threads"]
     conda:
-        "sbx_coassembly_env.yml"
+        "envs/sbx_coassembly_env.yml"
     container:
         f"docker://sunbeamlabs/sbx_coassembly:{SBX_COASSEMBLY_VERSION}"
     shell:
@@ -110,7 +110,7 @@ rule combine_groups_paired:
         w2=str(str(COASSEMBLY_FP / "agglomerate") + str("/*{group}_2.fastq")),
     threads: Cfg["sbx_coassembly"]["threads"]
     conda:
-        "sbx_coassembly_env.yml"
+        "envs/sbx_coassembly_env.yml"
     container:
         f"docker://sunbeamlabs/sbx_coassembly:{SBX_COASSEMBLY_VERSION}"
     shell:
@@ -134,7 +134,7 @@ rule coassemble_paired:
         assembly_dir=str(COASSEMBLY_FP / "{group}"),
     threads: Cfg["sbx_coassembly"]["threads"]
     conda:
-        "sbx_coassembly_env.yml"
+        "envs/sbx_coassembly_env.yml"
     container:
         f"docker://sunbeamlabs/sbx_coassembly:{SBX_COASSEMBLY_VERSION}"
     shell:
