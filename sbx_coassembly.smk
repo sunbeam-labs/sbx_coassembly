@@ -1,4 +1,4 @@
-import ruamel.yaml
+import yaml
 
 COASSEMBLY_FP = ASSEMBLY_FP / "coassembly"
 
@@ -34,7 +34,7 @@ def coassembly_groups(fp, sample_list):
         V = list(sorted(sample_list)) * 2
         R = [1] * len(sample_list) + [2] * len(sample_list)
         return [K, V, R]
-    groups = ruamel.yaml.safe_load(open(str(fp)).read())
+    groups = yaml.safe_load(open(str(fp)).read())
     sorted_keys = sorted(groups.keys())
     K = []  # group
     V = []  # sample
