@@ -1,4 +1,4 @@
-import ruamel.yaml
+import yaml
 
 COASSEMBLY_FP = ASSEMBLY_FP / "coassembly"
 
@@ -34,7 +34,7 @@ def coassembly_groups(fp, sample_list):
         V = list(sorted(sample_list)) * 2
         R = [1] * len(sample_list) + [2] * len(sample_list)
         return [K, V, R]
-    groups = ruamel.yaml.safe_load(open(str(fp)).read())
+    groups = yaml.safe_load(open(str(fp)).read())
     sorted_keys = sorted(groups.keys())
     K = []  # group
     V = []  # sample
@@ -89,7 +89,7 @@ rule prep_samples_for_concatenation_paired:
         LOG_FP / "prep_samples_for_concatenation_paired_{sample}_{group}.log",
     threads: Cfg["sbx_coassembly"]["threads"]
     conda:
-        "sbx_coassembly_env.yml"
+        "envs/sbx_coassembly_env.yml"
     container:
         f"docker://sunbeamlabs/sbx_coassembly:{SBX_COASSEMBLY_VERSION}"
     shell:
@@ -110,7 +110,7 @@ rule combine_groups_paired:
         w2=str(str(COASSEMBLY_FP / "agglomerate") + str("/*{group}_2.fastq")),
     threads: Cfg["sbx_coassembly"]["threads"]
     conda:
-        "sbx_coassembly_env.yml"
+        "envs/sbx_coassembly_env.yml"
     container:
         f"docker://sunbeamlabs/sbx_coassembly:{SBX_COASSEMBLY_VERSION}"
     shell:
@@ -134,7 +134,7 @@ rule coassemble_paired:
         assembly_dir=str(COASSEMBLY_FP / "{group}"),
     threads: Cfg["sbx_coassembly"]["threads"]
     conda:
-        "sbx_coassembly_env.yml"
+        "envs/sbx_coassembly_env.yml"
     container:
         f"docker://sunbeamlabs/sbx_coassembly:{SBX_COASSEMBLY_VERSION}"
     shell:
