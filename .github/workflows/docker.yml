@@ -30,31 +30,13 @@ jobs:
               id: meta
               uses: docker/metadata-action@v5
               with:
-                images: sunbeamlabs/sbx_assembly
+                images: sunbeamlabs/sbx_coassembly
             
-            - name: Build and push Docker image for annotation
+            - name: Build and push Docker image
               uses: docker/build-push-action@v5
               with:
                 context: .
                 file: envs/sbx_annotation.Dockerfile
                 push: true
-                tags: sunbeamlabs/sbx_assembly:${{ env.SBX_VER }}-annotation
-                labels: ${{ steps.meta.outputs.labels }}
-
-            - name: Build and push Docker image for assembly
-              uses: docker/build-push-action@v5
-              with:
-                context: .
-                file: envs/sbx_assembly.Dockerfile
-                push: true
-                tags: sunbeamlabs/sbx_assembly:${{ env.SBX_VER }}-assembly
-                labels: ${{ steps.meta.outputs.labels }}
-
-            - name: Build and push Docker image for coverage
-              uses: docker/build-push-action@v5
-              with:
-                context: .
-                file: envs/sbx_coverage.Dockerfile
-                push: true
-                tags: sunbeamlabs/sbx_assembly:${{ env.SBX_VER }}-coverage
+                tags: sunbeamlabs/sbx_coassembly:${{ env.SBX_VER }}
                 labels: ${{ steps.meta.outputs.labels }}
