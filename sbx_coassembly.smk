@@ -12,6 +12,18 @@ except NameError:
     LOG_FP = Cfg["all"]["output_fp"] / "logs"
 
 
+def get_coassembly_ext_path() -> Path:
+    ext_path = Path(sunbeam_dir) / "extensions" / "sbx_coassembly"
+    if ext_path.exists():
+        return ext_path
+    raise Error(
+        "Filepath for assembly not found, are you sure it's installed under extensions/sbx_coassembly?"
+    )
+
+
+SBX_COASSEMBLY_VERSION = open(get_coassembly_ext_path() / "VERSION").read().strip()
+
+
 def zip3l(l1, l2, l3):
     return list(zip(l1, l2, l3))
 
@@ -31,6 +43,10 @@ def coassembly_groups(fp, sample_list):
         V += groups[k]
     R = [1] * len(V) + [2] * len(V)
     return [K + K, V + V, R]
+
+
+localrules:
+    all_coassemble,
 
 
 rule all_coassemble:
@@ -74,6 +90,8 @@ rule prep_samples_for_concatenation_paired:
     threads: Cfg["sbx_coassembly"]["threads"]
     conda:
         "sbx_coassembly_env.yml"
+    container:
+        f"docker://sunbeamlabs/sbx_coassembly:{SBX_COASSEMBLY_VERSION}"
     shell:
         """
         pigz -d -p {threads} -c {input.r1} > {output.r1}
@@ -93,6 +111,8 @@ rule combine_groups_paired:
     threads: Cfg["sbx_coassembly"]["threads"]
     conda:
         "sbx_coassembly_env.yml"
+    container:
+        f"docker://sunbeamlabs/sbx_coassembly:{SBX_COASSEMBLY_VERSION}"
     shell:
         """
         cat {params.w1} | pigz -p {threads} > {output.r1}
@@ -115,6 +135,8 @@ rule coassemble_paired:
     threads: Cfg["sbx_coassembly"]["threads"]
     conda:
         "sbx_coassembly_env.yml"
+    container:
+        f"docker://sunbeamlabs/sbx_coassembly:{SBX_COASSEMBLY_VERSION}"
     shell:
         """
         megahit -1 {input.r1} -2 {input.r2} -t {threads} -o {params.assembly_dir} 2>&1 | tee {log}
