@@ -1,27 +1,7 @@
 import yaml
 
 COASSEMBLY_FP = ASSEMBLY_FP / "coassembly"
-
-try:
-    BENCHMARK_FP
-except NameError:
-    BENCHMARK_FP = Cfg["all"]["output_fp"] / "benchmarks"
-try:
-    LOG_FP
-except NameError:
-    LOG_FP = Cfg["all"]["output_fp"] / "logs"
-
-
-def get_coassembly_ext_path() -> Path:
-    ext_path = Path(sunbeam_dir) / "extensions" / "sbx_coassembly"
-    if ext_path.exists():
-        return ext_path
-    raise Error(
-        "Filepath for assembly not found, are you sure it's installed under extensions/sbx_coassembly?"
-    )
-
-
-SBX_COASSEMBLY_VERSION = open(get_coassembly_ext_path() / "VERSION").read().strip()
+SBX_COASSEMBLY_VERSION = open(get_ext_path("sbx_coassembly") / "VERSION").read().strip()
 
 
 def zip3l(l1, l2, l3):
