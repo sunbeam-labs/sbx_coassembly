@@ -1,0 +1,12 @@
+name: Update Conda Lockfiles
+
+on:
+  schedule:
+    - cron: '0 2 * * 1'
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: sunbeam-labs/condabot@main
