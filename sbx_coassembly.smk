@@ -1,27 +1,11 @@
 import yaml
 
 COASSEMBLY_FP = ASSEMBLY_FP / "coassembly"
-
 try:
-    BENCHMARK_FP
+    SBX_COASSEMBLY_VERSION = get_ext_version("sbx_coassembly")
 except NameError:
-    BENCHMARK_FP = Cfg["all"]["output_fp"] / "benchmarks"
-try:
-    LOG_FP
-except NameError:
-    LOG_FP = Cfg["all"]["output_fp"] / "logs"
-
-
-def get_coassembly_ext_path() -> Path:
-    ext_path = Path(sunbeam_dir) / "extensions" / "sbx_coassembly"
-    if ext_path.exists():
-        return ext_path
-    raise Error(
-        "Filepath for assembly not found, are you sure it's installed under extensions/sbx_coassembly?"
-    )
-
-
-SBX_COASSEMBLY_VERSION = open(get_coassembly_ext_path() / "VERSION").read().strip()
+    # For backwards compatibility with older versions of Sunbeam
+    SBX_COASSEMBLY_VERSION = "0.0.0"
 
 
 def zip3l(l1, l2, l3):
@@ -52,7 +36,7 @@ localrules:
 rule all_coassemble:
     input:
         a=expand(
-            str(COASSEMBLY_FP / "{group}_final_contigs.fa"),
+            COASSEMBLY_FP / "{group}_final_contigs.fa",
             group=list(
                 set(
                     coassembly_groups(
@@ -62,7 +46,7 @@ rule all_coassemble:
             ),
         ),
         b=expand(
-            str(COASSEMBLY_FP / "agglomerate" / "{sample}_{group}_{rp}.fastq"),
+            COASSEMBLY_FP / "agglomerate" / "{sample}_{group}_{rp}.fastq",
             zip3l,
             group=coassembly_groups(
                 Cfg["sbx_coassembly"]["group_file"], Samples.keys()
@@ -78,11 +62,11 @@ rule all_coassemble:
 
 rule prep_samples_for_concatenation_paired:
     input:
-        r1=str(QC_FP / "decontam" / "{sample}_1.fastq.gz"),
-        r2=str(QC_FP / "decontam" / "{sample}_2.fastq.gz"),
+        r1=QC_FP / "decontam" / "{sample}_1.fastq.gz",
+        r2=QC_FP / "decontam" / "{sample}_2.fastq.gz",
     output:
-        r1=temp(str(COASSEMBLY_FP / "agglomerate" / "{sample}_{group}_1.fastq")),
-        r2=temp(str(COASSEMBLY_FP / "agglomerate" / "{sample}_{group}_2.fastq")),
+        r1=temp(COASSEMBLY_FP / "agglomerate" / "{sample}_{group}_1.fastq"),
+        r2=temp(COASSEMBLY_FP / "agglomerate" / "{sample}_{group}_2.fastq"),
     benchmark:
         BENCHMARK_FP / "prep_samples_for_concatenation_paired_{sample}_{group}.tsv"
     log:
@@ -103,11 +87,11 @@ rule combine_groups_paired:
     input:
         rules.all_coassemble.input.b,
     output:
-        r1=str(COASSEMBLY_FP / "fastq" / "{group}_1.fastq.gz"),
-        r2=str(COASSEMBLY_FP / "fastq" / "{group}_2.fastq.gz"),
+        r1=COASSEMBLY_FP / "fastq" / "{group}_1.fastq.gz",
+        r2=COASSEMBLY_FP / "fastq" / "{group}_2.fastq.gz",
     params:
-        w1=str(str(COASSEMBLY_FP / "agglomerate") + str("/*{group}_1.fastq")),
-        w2=str(str(COASSEMBLY_FP / "agglomerate") + str("/*{group}_2.fastq")),
+        w1=str(COASSEMBLY_FP / "agglomerate") + str("/*{group}_1.fastq"),
+        w2=str(COASSEMBLY_FP / "agglomerate") + str("/*{group}_2.fastq"),
     threads: Cfg["sbx_coassembly"]["threads"]
     conda:
         "envs/sbx_coassembly_env.yml"
@@ -122,10 +106,10 @@ rule combine_groups_paired:
 
 rule coassemble_paired:
     input:
-        r1=str(COASSEMBLY_FP / "fastq" / "{group}_1.fastq.gz"),
-        r2=str(COASSEMBLY_FP / "fastq" / "{group}_2.fastq.gz"),
+        r1=COASSEMBLY_FP / "fastq" / "{group}_1.fastq.gz",
+        r2=COASSEMBLY_FP / "fastq" / "{group}_2.fastq.gz",
     output:
-        str(COASSEMBLY_FP / "{group}_final_contigs.fa"),
+        COASSEMBLY_FP / "{group}_final_contigs.fa",
     benchmark:
         BENCHMARK_FP / "coassemble_paired_{group}.tsv"
     log:
