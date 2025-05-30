@@ -1,7 +1,11 @@
 import yaml
 
 COASSEMBLY_FP = ASSEMBLY_FP / "coassembly"
-SBX_COASSEMBLY_VERSION = open(get_ext_path("sbx_coassembly") / "VERSION").read().strip()
+try:
+    SBX_COASSEMBLY_VERSION = get_ext_version("sbx_coassembly")
+except NameError:
+    # For backwards compatibility with older versions of Sunbeam
+    SBX_COASSEMBLY_VERSION = "0.0.0"
 
 
 def zip3l(l1, l2, l3):
